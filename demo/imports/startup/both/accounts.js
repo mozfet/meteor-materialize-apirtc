@@ -1,7 +1,7 @@
 AccountsTemplates.configure({
   defaultLayout: 'masterLayout',
   defaultLayoutRegions: {
-    nav: 'nav',
+    navigation: 'navigation',
     footer: 'footer',
   },
   defaultContentRegion: 'main',
@@ -22,7 +22,5 @@ AccountsTemplates.configure({
   negativeValidation: true,
   positiveValidation: true,
   positiveFeedback: true,
-  showValidating: true,
-  homeRoutePath: '/private',
-  redirectTimeout: 4000
+  showValidating: true
 })

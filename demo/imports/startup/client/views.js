@@ -1,0 +1,5 @@
+import '/imports/ui/layouts/master/masterLayout.js'
+import '/imports/ui/views/navigation/navigation.js'
+import '/imports/ui/views/home/home.js'
+import '/imports/ui/views/private/private.js'
+import '/imports/ui/views/notFound/notFound.js'

@@ -1,5 +1,5 @@
 {
-  "name": "testApp",
+  "name": "Materialize ApiRTC Demo App",
   "private": true,
   "scripts": {
     "start": "meteor run",

@@ -1,10 +1,6 @@
 import { FlowRouter } from 'meteor/kadira:flow-router'
 import { BlazeLayout } from 'meteor/kadira:blaze-layout'
-import '/imports/ui/layouts/master/masterLayout.js'
-import '/imports/ui/views/navigation/navigation.js'
-import '/imports/ui/views/home/home.js'
-import '/imports/ui/views/private/private.js'
-import '/imports/ui/views/notFound/notFound.js'
+import Toast from '/imports/ui/components/toast'
 
 FlowRouter.route('/', {
   name: 'home',
@@ -25,7 +21,7 @@ FlowRouter.route('/private', {
       main: 'private'
     })
   }
-});
+})
 
 FlowRouter.notFound = {
   action() {
@@ -39,3 +35,19 @@ AccountsTemplates.configureRoute('resetPwd')
 AccountsTemplates.configureRoute('signIn')
 AccountsTemplates.configureRoute('signUp')
 AccountsTemplates.configureRoute('verifyEmail')
+
+AccountsTemplates.configure({
+  onSubmitHook: ( error, state ) => {
+    if ( !error && state === 'signIn' ) {
+      console.log('signin success')
+      Toast.show(['account'], 'Sign-in OK')
+    }
+    else {
+      Toast.show(['account'], 'Sign-in Failed')
+    }
+  },
+  onLogoutHook: ( error, state ) => {
+    console.log('signout success')
+    Toast.show(['account'], 'Sign-out OK')
+  }
+})
