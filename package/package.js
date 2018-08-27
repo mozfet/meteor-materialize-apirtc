@@ -8,6 +8,13 @@ Package.describe({
 Package.onUse(function(api) {
   api.versionsFrom('METEOR@1.6');
   api.use([
+    'ecmascript',
+    'ejson',
+    'jquery',
+    'underscore',
+    'tmeasday:check-npm-versions@0.3.2'
+  ]);
+  api.use([
     'templating',
     'blaze',
     'reactive-dict',
@@ -15,12 +22,8 @@ Package.onUse(function(api) {
     'fourseven:scss@4.5.4'
   ], 'client');
   api.use([
-    'ecmascript',
-    'ejson',
-    'jquery',
-    'underscore',
-    'tmeasday:check-npm-versions@0.3.2'
-  ]);
+    'mongo'
+  ], 'client');
   api.mainModule('server.js', 'server')
   api.mainModule('client.js', 'client')
   api.addFiles(['style.scss'], 'client');

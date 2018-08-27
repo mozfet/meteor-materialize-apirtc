@@ -4,7 +4,9 @@
       <div class="col s12">
         {{#if currentUser}}
           <h1>Private</h1>
-          {{>ApiRtc otherUser=otherUser}}
+          {{#with otherUserId.get}}
+            {{>ApiRtc otherUserId=this}}
+          {{/with}}
         {{else}}
           {{> atForm}}
         {{/if}}
