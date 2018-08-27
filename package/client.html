@@ -3,26 +3,14 @@
   <div class="row">
     <div class="col s12 m12 l12">
       <div class="col s12">
-        <div class="input-field">
-          <button type="button" id=""  class="btn btn-success js-teb-apirtc-address-button">
-            <i class="fa fa-book"></i>
-          </button>
-          <ul id="addressBookDropDown" style="display:none;">
-            <li><a id="client1" href="#">client1</a></li>
-            <li><a id="client2" href="#">client2</a></li>
-          </ul>
-          <button type="button" id="callVideo" class="btn btn-success">
-            <i class="fa fa-phone"></i>
-          </button>
-          <input id="hangup" class="btn red" type="button" disabled="true" value="Hangup" />
-          <input id="accept" class="btn green" type="button" disabled="true" value="Accept Call" />
-          <input id="refuse" class="btn red" type="button" disabled="true" value="Refuse Call" />
-          <input type="text" id="number" class="form-control" placeholder="Username" aria-describedby="sizing-addon1">
-        </div>
-      </div>
-
-      <div class="col s12 m6 l6">
-       <div id="hangupButtons"></div>
+        <button class="btn btn-success js-teb-apirtc-start-call-button"
+            disabled={{disableStartCallButton}}>Start Call</button>
+        <button class="btn btn-success js-teb-apirtc-end-call-button"
+            disabled={{disableEndCallButton}}>End Call</button>
+        <button class="btn btn-success js-teb-apirtc-accept-call-button"
+            disabled={{disableAcceptCallButton}}>Accept Call</button>
+        <button class="btn btn-success js-teb-apirtc-accept-call-button"
+            disabled={{disableRejectCallButton}}>Reject Call</button>
       </div>
     </div>
   </div>

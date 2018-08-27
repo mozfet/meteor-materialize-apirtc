@@ -7,7 +7,13 @@ Package.describe({
 
 Package.onUse(function(api) {
   api.versionsFrom('METEOR@1.6');
-  api.use(['templating', 'blaze'], 'client');
+  api.use([
+    'templating',
+    'blaze',
+    'reactive-dict',
+    'mozfet:materialize-icons@0.1.1',
+    'fourseven:scss@4.5.4'
+  ], 'client');
   api.use([
     'ecmascript',
     'ejson',
@@ -17,6 +23,7 @@ Package.onUse(function(api) {
   ]);
   api.mainModule('server.js', 'server')
   api.mainModule('client.js', 'client')
+  api.addFiles(['style.scss'], 'client');
 });
 
 // Npm.depends({
@@ -25,7 +32,13 @@ Package.onUse(function(api) {
 
 Package.onTest(function(api) {
   api.versionsFrom('METEOR@1.6');
-  api.use(['templating', 'blaze'], 'client');
+  api.use([
+    'templating',
+    'blaze',
+    'reactive-dict',
+    'mozfet:materialize-icons@0.1.1',
+    'fourseven:scss@4.5.4'
+  ], 'client');
   api.use([
     'mozfet:meteor-materialize-apirtc',
     'ecmascript',
@@ -38,4 +51,5 @@ Package.onTest(function(api) {
   ]);
   api.mainModule('server_test.js', 'server')
   api.mainModule('client_test.js', 'client')
+  api.addFiles(['style.scss'], 'client');
 });
