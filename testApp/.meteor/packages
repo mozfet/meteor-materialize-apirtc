@@ -26,3 +26,9 @@ johanbrook:publication-collector  # Test a Meteor publication by collecting its 
 mozfet:materialize-apirtc
 mozfet:materialize-icons
 fourseven:scss
+accounts-base
+accounts-password
+accounts-ui
+useraccounts:flow-routing
+useraccounts:materialize
+arillo:flow-router-helpers

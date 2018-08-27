@@ -1,0 +1,19 @@
+<template name="navigation">
+  <nav>
+    <div class="nav-wrapper">
+      <a href="#!" class="brand-logo center">Video Chat Demo</a>
+      <a href="#" data-target="mobile-nav" class="sidenav-trigger">
+        <i class="material-icons">menu</i>
+      </a>
+      <ul class="right hide-on-med-and-down">
+        <li>{{>atNavButton}}</li>
+      </ul>
+    </div>
+  </nav>
+
+  <ul class="sidenav" id="mobile-nav">
+    <li><a href="{{pathFor 'home'}}">Home</a></li>
+    <li><a href="{{pathFor 'private'}}">Private</a></li>
+    <li>{{> atNavButton}}</li>
+  </ul>
+</template>
