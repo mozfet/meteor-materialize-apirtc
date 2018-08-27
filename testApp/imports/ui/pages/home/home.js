@@ -1,4 +1,2 @@
-import './home.html';
-
-import '../../components/hello/hello.js';
-import '../../components/info/info.js';
+import 'meteor/mozfet:materialize-apirtc'
+import './home.html'

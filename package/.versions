@@ -9,13 +9,14 @@ ecmascript-runtime-server@0.7.1
 ejson@1.1.0
 http@1.4.1
 jquery@1.11.11
-local-test:mozfet:meteor-materialize-apirtc@0.0.2
+local-test:mozfet:materialize-apirtc@0.0.2
 meteor@1.9.2
 meteortesting:browser-tests@0.1.2
 meteortesting:mocha@0.4.4
 modern-browsers@0.1.2
 modules@0.12.2
 modules-runtime@0.10.2
+mozfet:materialize-apirtc@0.0.2
 mozfet:meteor-materialize-apirtc@0.0.2
 practicalmeteor:mocha-core@1.0.1
 promise@0.11.1
