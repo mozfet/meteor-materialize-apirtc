@@ -4,13 +4,9 @@
     <div class="col s12 m12 l12">
       <div class="col s12">
         <button class="btn btn-success js-teb-apirtc-start-call-button"
-            disabled={{disableStartCallButton}}>Start Call</button>
+            disabled={{isStartButtonDisabled}}>Start</button>
         <button class="btn btn-success js-teb-apirtc-end-call-button"
-            disabled={{disableEndCallButton}}>End Call</button>
-        <button class="btn btn-success js-teb-apirtc-accept-call-button"
-            disabled={{disableAcceptCallButton}}>Accept Call</button>
-        <button class="btn btn-success js-teb-apirtc-reject-call-button"
-            disabled={{disableRejectCallButton}}>Reject Call</button>
+            disabled={{isEndButtonDisabled}}>End</button>
       </div>
     </div>
   </div>
@@ -23,7 +19,12 @@
   </div>
   <br>
   <div class="row">
-    <div id="remote" style="width:100%;"></div>
-    <div id="mini"></div>
+    <div id="remote-container" style="width:100%;"></div>
+    <div id="local-container"></div>
+    <!-- <div id="local" style="position: absolute; width:640px; height:480px;"><video id="myLocalVideo" autoplay="autoplay" muted="true"></video></div>
+    <div id="remote" style="position: absolute;">
+        <div id="myRemoteVideo" style="width:640px; height:480px;"></div>
+        <div id="mini"><video width="20%" height="20%" id="myMiniVideo" autoplay="autoplay" muted="true"></video></div>
+    </div> -->
   </div>
 </template>
