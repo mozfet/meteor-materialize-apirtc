@@ -1,3 +1,5 @@
+import {_} from 'meteor/underscore'
+
 Meteor.methods({
   findOtherUserId() {
     const users = Meteor.users.find({}, {fields: {_id: 1}}).fetch()
