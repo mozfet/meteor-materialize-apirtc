@@ -11,14 +11,13 @@ Package.onUse(function(api) {
     'ecmascript',
     'ejson',
     'jquery',
-    'underscore',
-    'tmeasday:check-npm-versions@0.3.2'
+    'underscore'
   ]);
   api.use([
     'templating',
     'blaze',
     'reactive-dict',
-    'mozfet:materialize-icons@0.1.1',
+    'mozfet:materialize-icons@1.1.1',
     'fourseven:scss@4.5.4'
   ], 'client');
   api.use([

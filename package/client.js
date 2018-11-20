@@ -1,7 +1,6 @@
 // imports
 import { Template } from 'meteor/templating'
 import { ReactiveDict } from 'meteor/reactive-dict'
-import { checkNpmVersions } from 'meteor/tmeasday:check-npm-versions'
 import './external/apiRTC-4.1.24.min'
 import './client.html'
 
@@ -10,13 +9,14 @@ const states = {
   isSessionReady: 'isSessionReady',
   otherUserNumber: 'otherUserNumber',
   errorMessage: 'errorMessage',
-  isEndCallButtonEnabled: 'isEndCallButtonEnabled',
-  isStartCallButtonEnabled: 'isStartCallButtonEnabled'
+  isReadyToEndCall: 'isReadyToEndCall',
+  isReadyToStartCall: 'isReadyToStartCall'
 }
 
 // messages
 const messages = {
   errorRegistration: 'Registration Error',
+  errorConnection: 'Connection Error'
 }
 
 // events
@@ -30,7 +30,10 @@ const events = {
   hangup: 'hangup',
   accepted: 'accepted',
   declined: 'declined',
-  statusChange: 'statusChange'
+  statusChange: 'statusChange',
+  disconnectionWarning: 'disconnectionWarning',
+  error: 'error',
+  response: 'response'
 }
 
 // abstracted placeholder for internationalization
@@ -115,10 +118,158 @@ function addStreamInDiv(stream, divId, mediaEltId, style, muted) {
   }
 }
 
-// checkNpmVersions({
-//   "materialize-css": "1.0.0"
-// }, 'mozfet:materialize-apirtc')
+// call listeners
+// called on acceptance of an invitation or when starting a call with a contact
+function attachCallListeners(instance) {
 
+  // on call accepted
+  instance.apiRtcCall.on(events.accepted, () => {
+    console.log('callAccepted')
+
+    // disable the start call button
+    instance.state.set(states.isReadyToStartCall, false)
+
+    // enable the end call button
+    instance.state.set(states.isReadyToEndCall, true)
+  })
+
+  // on call declined
+  instance.apiRtcCall.on(events.declined, reason => {
+    console.log('callDeclined, reason:', reason)
+
+    // enable the start call button
+    instance.state.set(states.isReadyToStartCall, true)
+
+    // disable the end call button
+    instance.state.set(states.isReadyToEndCall, false)
+  })
+
+  // on response
+  instance.apiRtcCall.on(events.response, () => {
+    console.log('other user responded')
+  })
+
+  // on local stream available for call
+  instance.apiRtcCall.on(events.localStreamAvailable, stream => {
+    console.log('localStreamAvailable')
+
+    // generate element id
+    const localMediaStreamId = `local-media-${stream.getId()}`
+
+    // cleanup
+    instance.$(`#${localMediaStreamId}`).remove()
+
+    // add stream to DOM
+    addStreamInDiv(stream, 'local-container', localMediaStreamId,
+        {width : "160px", height : "120px"}, true)
+
+    // on stream stop - e.g. screensharing call from another user
+    stream.on('stopped', () => {
+      console.log('Stream stopped.')
+
+      // cleanup
+      instance.$(`#${localMediaStreamId}`).remove()
+    })
+  })
+
+  // on remote stream added
+  instance.apiRtcCall.on(events.streamAdded, stream => {
+    console.log('call stream added:', stream)
+
+    // generate element id
+    const remoteMediaStreamId = `remote-media-${stream.getId()}`
+
+    // cleanup
+    instance.$(`#${remoteMediaStreamId}`).remove()
+
+    // add stream to DOM
+    addStreamInDiv(stream, 'remote-container', remoteMediaStreamId,
+        {width : "640px", height : "480px"}, false)
+
+    // on stream stop - e.g. screensharing call from another user
+    stream.on('stopped', () => {
+      console.log('Stream stopped.')
+
+      // cleanup
+      instance.$(`#${remoteMediaStreamId}`).remove()
+    })
+  })
+
+  // on remote stream removed
+  instance.apiRtcCall.on(events.streamRemoved, stream => {
+
+    // remove remote media from the DOM
+    instance.$(`#remote-media-${stream.getId()}`).remove()
+
+    // enable the start call button
+    instance.state.set(states.isReadyToStartCall, true)
+
+    // disable the end call button
+    instance.state.set(states.isReadyToStartCall, false)
+  })
+
+  // on call user media error
+  instance.apiRtcCall.on(events.userMediaError, event => {
+    console.log('userMediaError detected : ', event);
+    console.log('userMediaError detected with error : ',
+        event.error)
+
+    // checking if tryAudioCallActivated
+    if (event.tryAudioCallActivated) {
+      console.log('apiRTC will try to fall back to audio only')
+    }
+    else {
+      console.log('no audio fallback')
+
+      // enable the start call button
+      instance.state.set(states.isReadyToStartCall, true)
+
+      // disable the end call button
+      instance.state.set(states.isReadyToStartCall, false)
+    }
+  })
+
+  // on disconnect warning
+  instance.apiRtcCall.on(events.disconnectionWarning, event => {
+    const msg = translate(messages.errorConnection)
+    console.error(msg)
+    instance.state.set(states.errorMessage, msg)
+  })
+
+  // on error
+  instance.apiRtcCall.on(events.error, event => {
+    const msg = translate(messages.error, event)
+    console.error(msg)
+    instance.state.set(states.errorMessage, msg)
+  })
+
+  // on call desktop capture
+  instance.apiRtcCall.on(events.desktopCapture, function (event) {
+    console.log('call desktopCapture: ', event);
+
+    // ???
+  })
+
+  // on call hangup
+  instance.apiRtcCall.on(events.hangup, (from, reason) => {
+    console.log('call hangup: ', from, reason)
+
+    // enable the start call button
+    instance.state.set(states.isReadyToStartCall, true)
+
+    // disable the end call button
+    instance.state.set(states.isReadyToEndCall, false)
+
+    // remove the invitation
+    delete instance.apiRtcInvitation
+
+    // remove the call
+    delete instance.apiRtcCall
+  })
+}
+
+
+// on created
 Template.ApiRtc.onCreated(() => {
   const instance = Template.instance()
   console.log('Other user id:', instance.data.otherUserId)
@@ -127,10 +278,10 @@ Template.ApiRtc.onCreated(() => {
   instance.state = new ReactiveDict()
 
   // disable start button
-  instance.state.set(states.isStartCallButtonEnabled, false)
+  instance.state.set(states.isReadyToStartCall, false)
 
   // disable end button
-  instance.state.set(states.isEndCallButtonEnabled, false)
+  instance.state.set(states.isReadyToEndCall, false)
 
   // get api rtc user agent
   instance.userAgent = new apiRTC.UserAgent({
@@ -174,10 +325,10 @@ Template.ApiRtc.onCreated(() => {
               instance.apiRtcInvitation = invitation
 
               // enable the start button
-              instance.state.set(states.isStartCallButtonEnabled, true)
+              instance.state.set(states.isReadyToStartCall, true)
 
               // enable the end button
-              instance.state.set(states.isEndCallButtonEnabled, true)
+              instance.state.set(states.isReadyToEndCall, true)
 
               // on invitation state change
               invitation.on(events.statusChange, event => {
@@ -223,10 +374,10 @@ Template.ApiRtc.onCreated(() => {
               instance.state.set(states.errorMessage, msg)
 
               // disable the start button
-              instance.state.set(states.isStartCallButtonEnabled, false)
+              instance.state.set(states.isReadyToStartCall, false)
 
               // disable the end button
-              instance.state.set(states.isEndCallButtonEnabled, false)
+              instance.state.set(states.isReadyToEndCall, false)
               console.warn(msg)
             }
 
@@ -236,10 +387,10 @@ Template.ApiRtc.onCreated(() => {
               instance.state.set(states.otherUserNumber, number)
 
               // enable start button
-              instance.state.set(states.isStartCallButtonEnabled, true)
+              instance.state.set(states.isReadyToStartCall, true)
 
               // disable end button
-              instance.state.set(states.isEndCallButtonEnabled, false)
+              instance.state.set(states.isReadyToEndCall, false)
             }
           })
     }
@@ -253,22 +404,38 @@ Template.ApiRtc.onCreated(() => {
   worker(intervalId)
 })
 
-Template.ApiRtc.onRendered(() => {
-  const instance = Template.instance()
-})
-
+// helpers
 Template.ApiRtc.helpers({
-  isStartButtonDisabled() {
+  isReadyToStart() {
     const instance = Template.instance()
-    return !instance.state.get(states.isStartCallButtonEnabled)
+    return instance.state.get(states.isReadyToStartCall)
   },
-  isEndButtonDisabled() {
+  startIconAttr() {
     const instance = Template.instance()
-    return !instance.state.get(states.isEndCallButtonEnabled)
+    return {
+      icon: 'call',
+      iconClass: 'medium green-text js-teb-apirtc-start-call-button',
+      text: 'Start or accept call.'
+    }
+  },
+  isReadyToEnd() {
+    const instance = Template.instance()
+    return instance.state.get(states.isReadyToEndCall)
+  },
+  endIconAttr() {
+    const instance = Template.instance()
+    return {
+      icon: 'call_end',
+      iconClass: 'medium red-text js-teb-apirtc-end-call-button',
+      text: 'End or reject call.'
+    }
   }
 })
 
+// events
 Template.ApiRtc.events({
+
+  // on click of start call button
   'click .js-teb-apirtc-start-call-button'(event, instance) {
     console.log(`Start call button was clicked.`)
 
@@ -287,142 +454,19 @@ Template.ApiRtc.events({
               instance.apiRtcCall = call
 
               // disable the start button
-              instance.state.set(states.isStartCallButtonEnabled, false)
+              instance.state.set(states.isReadyToStartCall, false)
 
               // enable the end button
-              instance.state.set(states.isEndCallButtonEnabled, true)
+              instance.state.set(states.isReadyToEndCall, true)
 
-              // on call accepted
-              call.on(events.accepted, () => {
-                console.log('callAccepted')
-
-                // disable the start call button
-                instance.state.set(states.isStartCallButtonEnabled, false)
-
-                // enable the end call button
-                instance.state.set(states.isEndCallButtonEnabled, true)
-              })
-
-              // on call declined
-              call.on(events.declined, reason => {
-                console.log('callDeclined, reason:', reason)
-
-                // enable the start call button
-                instance.state.set(states.isStartCallButtonEnabled, true)
-
-                // disable the end call button
-                instance.state.set(states.isEndCallButtonEnabled, false)
-              })
-
-              // on local stream available for call
-              call.on(events.localStreamAvailable, stream => {
-                console.log('localStreamAvailable')
-
-                // generate element id
-                const localMediaStreamId = `local-media-${stream.getId()}`
-
-                // cleanup
-                instance.$(`#${localMediaStreamId}`).remove()
-
-                // add stream to DOM
-                addStreamInDiv(stream, 'local-container', localMediaStreamId,
-                    {width : "160px", height : "120px"}, true)
-
-                // on stream stop - e.g. screensharing call from another user
-                stream.on('stopped', () => {
-                  console.log('Stream stopped.')
-
-                  // cleanup
-                  instance.$(`#${localMediaStreamId}`).remove()
-                })
-              })
-
-              // on remote stream added
-              call.on(events.streamAdded, stream => {
-                console.log('call stream added:', stream)
-
-                // generate element id
-                const remoteMediaStreamId = `remote-media-${stream.getId()}`
-
-                // cleanup
-                instance.$(`#${remoteMediaStreamId}`).remove()
-
-                // add stream to DOM
-                addStreamInDiv(stream, 'remote-container', remoteMediaStreamId,
-                    {width : "640px", height : "480px"}, false)
-
-                // on stream stop - e.g. screensharing call from another user
-                stream.on('stopped', () => {
-                  console.log('Stream stopped.')
-
-                  // cleanup
-                  instance.$(`#${remoteMediaStreamId}`).remove()
-                })
-              })
-
-              // on remote stream removed
-              call.on(events.streamRemoved, stream => {
-
-                // remove remote media from the DOM
-                instance.$(`#remote-media-${stream.getId()}`).remove()
-
-                // enable the start call button
-                instance.state.set(states.isStartCallButtonEnabled, true)
-
-                // disable the end call button
-                instance.state.set(states.isStartCallButtonEnabled, false)
-              })
-
-              // on call user media error
-              call.on(events.userMediaError, event => {
-                console.log('userMediaError detected : ', event);
-                console.log('userMediaError detected with error : ',
-                    event.error)
-
-                // checking if tryAudioCallActivated
-                if (e.tryAudioCallActivated) {
-                  console.log('apiRTC will try to fall back to audio only')
-                }
-                else {
-                  console.log('no audio fallback')
-
-                  // enable the start call button
-                  instance.state.set(states.isStartCallButtonEnabled, true)
-
-                  // disable the end call button
-                  instance.state.set(states.isStartCallButtonEnabled, false)
-                }
-              })
-
-              // on call desktop capture
-              call.on(events.desktopCapture, function (event) {
-                console.log('call desktopCapture: ', event);
-
-                // ???
-              })
-
-              // on call hangup
-              call.on(events.hangup, (from, reason) => {
-                console.log('call hangup: ', from, reason)
-
-                // enable the start call button
-                instance.state.set(states.isStartCallButtonEnabled, true)
-
-                // disable the end call button
-                instance.state.set(states.isEndCallButtonEnabled, false)
-
-                // remove the invitation
-                delete instance.apiRtcInvitation
-
-                // remove the call
-                delete instance.apiRtcCall
-              })
-            })
+              // attach call listerners
+              attachCallListeners(instance)
+          })
     }
 
     // else - no invitation
     else {
-      console.log('starting a new call')
+      console.log('no invitation - starting a new call')
 
       // get the other user number
       Meteor.call('apirtc.getNumber', instance.data.otherUserId,
@@ -438,6 +482,9 @@ Template.ApiRtc.events({
               // start a new call
               const contact = instance.apiRtcSession.getOrCreateContact(number)
               instance.apiRtcCall = contact.call()
+
+              // attach call listeners
+              attachCallListeners(instance)
             }
             else {
               console.warn('could not get other user number');
@@ -445,6 +492,8 @@ Template.ApiRtc.events({
           })
     }
   },
+
+  // on click of end call button
   'click .js-teb-apirtc-end-call-button'(event, instance) {
     console.log(`End call button was clicked.`)
 
@@ -465,10 +514,10 @@ Template.ApiRtc.events({
       delete instance.apiRtcInvitation
 
       // enable the start call button
-      instance.state.set(states.isStartCallButtonEnabled, true)
+      instance.state.set(states.isReadyToStartCall, true)
 
       // disable the end call button
-      instance.state.set(states.isEndCallButtonEnabled, false)
+      instance.state.set(states.isReadyToEndCall, false)
     }
   }
 })
