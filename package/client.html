@@ -3,34 +3,33 @@
   <div class="row">
     <div class="col s12 m12 l12">
       <div class="col s12">
-        <!-- <button class="btn btn-success js-teb-apirtc-start-call-button"
-            disabled={{isStartButtonDisabled}}>Start</button> -->
-        <!-- <button class="btn btn-success js-teb-apirtc-end-call-button"
-            disabled={{isEndButtonDisabled}}>End</button> -->
-        {{#if isReadyToStart}}
-          {{> tooltippedIcon startIconAttr}}
-        {{/if}}
-        {{#if isReadyToEnd}}
-          {{> tooltippedIcon endIconAttr}}
-        {{/if}}
+
       </div>
     </div>
   </div>
 
   <div class="row">
-    <div class="col s12 m12 l12">
-      <span id="status"></span>
-      <span id="status2"></span>
+    <div class="wrapper">
+      <div class="apitrc-container">
+        <div class="apirtc-buttons">
+          {{#if isReadyToStart}}
+            {{> tooltippedIcon startIconAttr}}
+          {{/if}}
+          {{#if isReadyToEnd}}
+            {{> tooltippedIcon endIconAttr}}
+          {{/if}}
+        </div>
+        <div class="remote-container">
+          <video class="remote-video" autoplay poster={{poster}}>
+
+          </video>
+        </div>
+        <div class="local-container">
+          <video class="local-video" autoplay muted poster={{poster}}>
+
+          </video>
+        </div>
+      </div>
     </div>
-  </div>
-  <br>
-  <div class="row">
-    <div id="remote-container" style="width:100%;"></div>
-    <div id="local-container"></div>
-    <!-- <div id="local" style="position: absolute; width:640px; height:480px;"><video id="myLocalVideo" autoplay="autoplay" muted="true"></video></div>
-    <div id="remote" style="position: absolute;">
-        <div id="myRemoteVideo" style="width:640px; height:480px;"></div>
-        <div id="mini"><video width="20%" height="20%" id="myMiniVideo" autoplay="autoplay" muted="true"></video></div>
-    </div> -->
   </div>
 </template>

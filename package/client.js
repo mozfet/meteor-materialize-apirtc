@@ -41,6 +41,11 @@ function translate(message, data) {
   return message + data?data:''
 }
 
+function addStreamToVideo(instance, stream, videoElementId) {
+  const element = instance.$(`#${videoElementId}`).get(0)
+  stream.attachToElement(mediaElt)
+}
+
 
 // add media stream in div -
 // copied from https://dev.apirtc.com/demo/peertopeer_call/js/peertopeer-call.js
@@ -48,8 +53,6 @@ function addStreamInDiv(stream, divId, mediaEltId, style, muted) {
   console.log('addStreamInDiv:',stream, divId, mediaEltId, style, muted);
 
   var streamIsVideo = stream.hasVideo();
-  console.error('addStreamInDiv - hasVideo? ' + streamIsVideo);
-
   var mediaElt = null,
       divElement = null,
       funcFixIoS = null,
@@ -68,26 +71,22 @@ function addStreamInDiv(stream, divId, mediaEltId, style, muted) {
   mediaElt.style.height = style.height;
 
   funcFixIoS = function () {
-      var promise = mediaElt.play()
+    var promise = mediaElt.play()
 
-      console.log('funcFixIoS')
-      if (promise !== undefined) {
-          promise.then(function () {
-              // Autoplay started!
-              console.log('Autoplay started')
-              console.error('Audio is now activated')
-              document.removeEventListener('touchstart', funcFixIoS)
-
-              $('#status').empty().append('iOS / Safari : Audio is now activated')
-
-          }).catch(function (error) {
-              // autoplay was prevented.
-              console.error('Autoplay was prevented')
-          });
-      }
+    console.log('funcFixIoS')
+    if (promise !== undefined) {
+      promise.then(function () {
+        // Autoplay started!
+        console.log('Autoplay started')
+        console.error('Audio is now activated')
+        document.removeEventListener('touchstart', funcFixIoS)
+      }).catch(function (error) {
+        console.error('Autoplay was prevented')
+      });
+    }
   }
 
-  stream.attachToElement(mediaElt);
+  stream.attachToElement(mediaElt)
 
   divElement = document.getElementById(divId)
   divElement.appendChild(mediaElt)
@@ -108,7 +107,7 @@ function addStreamInDiv(stream, divId, mediaEltId, style, muted) {
           //In our sample, we display a modal to inform user and use touchstart event to launch "play()"
           document.addEventListener('touchstart',  funcFixIoS);
           console.error('WARNING : Audio autoplay was prevented by iOS, touch screen to activate audio');
-          $('#status').empty().append('WARNING : iOS / Safari : Audio autoplay was prevented by iOS, touch screen to activate audio');
+          // $('#status').empty().append('WARNING : iOS / Safari : Audio autoplay was prevented by iOS, touch screen to activate audio');
           break
         default:
           console.error('Autoplay was prevented');
@@ -153,22 +152,13 @@ function attachCallListeners(instance) {
   instance.apiRtcCall.on(events.localStreamAvailable, stream => {
     console.log('localStreamAvailable')
 
-    // generate element id
-    const localMediaStreamId = `local-media-${stream.getId()}`
-
-    // cleanup
-    instance.$(`#${localMediaStreamId}`).remove()
-
     // add stream to DOM
-    addStreamInDiv(stream, 'local-container', localMediaStreamId,
-        {width : "160px", height : "120px"}, true)
+    const localVideoElement = instance.$('.local-video').get(0)
+    stream.attachToElement(localVideoElement)
 
     // on stream stop - e.g. screensharing call from another user
     stream.on('stopped', () => {
-      console.log('Stream stopped.')
-
-      // cleanup
-      instance.$(`#${localMediaStreamId}`).remove()
+      console.log('Local stream stopped.')
     })
   })
 
@@ -176,30 +166,18 @@ function attachCallListeners(instance) {
   instance.apiRtcCall.on(events.streamAdded, stream => {
     console.log('call stream added:', stream)
 
-    // generate element id
-    const remoteMediaStreamId = `remote-media-${stream.getId()}`
-
-    // cleanup
-    instance.$(`#${remoteMediaStreamId}`).remove()
-
     // add stream to DOM
-    addStreamInDiv(stream, 'remote-container', remoteMediaStreamId,
-        {width : "640px", height : "480px"}, false)
+    const remoteVideoElement = instance.$('.remote-video').get(0)
+    stream.attachToElement(remoteVideoElement)
 
     // on stream stop - e.g. screensharing call from another user
     stream.on('stopped', () => {
-      console.log('Stream stopped.')
-
-      // cleanup
-      instance.$(`#${remoteMediaStreamId}`).remove()
+      console.log('Remote stream stopped.')
     })
   })
 
   // on remote stream removed
   instance.apiRtcCall.on(events.streamRemoved, stream => {
-
-    // remove remote media from the DOM
-    instance.$(`#remote-media-${stream.getId()}`).remove()
 
     // enable the start call button
     instance.state.set(states.isReadyToStartCall, true)
@@ -414,7 +392,7 @@ Template.ApiRtc.helpers({
     const instance = Template.instance()
     return {
       icon: 'call',
-      iconClass: 'medium green-text js-teb-apirtc-start-call-button',
+      iconClass: 'medium green-text apirtc-start-call-button',
       text: 'Start or accept call.'
     }
   },
@@ -426,17 +404,18 @@ Template.ApiRtc.helpers({
     const instance = Template.instance()
     return {
       icon: 'call_end',
-      iconClass: 'medium red-text js-teb-apirtc-end-call-button',
+      iconClass: 'medium red-text apirtc-end-call-button',
       text: 'End or reject call.'
     }
-  }
+  },
+  poster: "data:image/gif;base64,R0lGODlhBAADAIAAAP///wAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDUgNzkuMTYzNDk5LCAyMDE4LzA4LzEzLTE2OjQwOjIyICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjNmNjhkY2Y2LWQxM2EtNGVhYi1hYmJkLTE2YmUxYzExYjM5ZSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoyQkE3MzE3QUU1OTcxMUU4QjRBQTk3OUNBRjQ0MDIzRCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoyQkE3MzE3OUU1OTcxMUU4QjRBQTk3OUNBRjQ0MDIzRCIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOSAoTWFjaW50b3NoKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjNmNjhkY2Y2LWQxM2EtNGVhYi1hYmJkLTE2YmUxYzExYjM5ZSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDozZjY4ZGNmNi1kMTNhLTRlYWItYWJiZC0xNmJlMWMxMWIzOWUiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQAAAAAACwAAAAABAADAAACA4SPVgA7"
 })
 
 // events
 Template.ApiRtc.events({
 
   // on click of start call button
-  'click .js-teb-apirtc-start-call-button'(event, instance) {
+  'click .apirtc-start-call-button'(event, instance) {
     console.log(`Start call button was clicked.`)
 
     // if there is an invitation
@@ -494,7 +473,7 @@ Template.ApiRtc.events({
   },
 
   // on click of end call button
-  'click .js-teb-apirtc-end-call-button'(event, instance) {
+  'click .apirtc-end-call-button'(event, instance) {
     console.log(`End call button was clicked.`)
 
     if (instance.apiRtcCall) {

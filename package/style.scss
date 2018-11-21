@@ -1,2 +1,57 @@
 @import "{}/node_modules/materialize-css/sass/components/_color-variables.scss";
 // @import "{}/node_modules/materialize-css/sass/components/_variables.scss";
+
+.apirtc-start-call-button:hover {
+  cursor: pointer
+}
+
+.apirtc-end-call-button:hover {
+  cursor: pointer
+}
+
+.apitrc-container {
+  display: block;
+  position: relative;
+  border-style: solid;
+  z-index: 10;
+}
+
+.wrapper {
+  // display: inline-block;
+  // position: relative;
+  // overflow: auto;
+}
+
+.local-container {
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20%;
+  height: auto;
+  z-index: 1;
+}
+
+.local-video {
+  width: 100%;
+  height: auto;
+}
+
+.remote-container {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: auto;
+  z-index: -1;
+}
+
+.remote-video {
+  width: 100%;
+  height: auto;
+}
+
+.apirtc-buttons {
+  display: block;
+  position: absolute;
+  margin-left: 2%;
+}
