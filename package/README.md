@@ -53,8 +53,10 @@ html, body {
 ```
 
 # Usage
-
-In blaze template in client side code:
+In blaze template client side code:
 ```
-{{> ApiRtcVideoChat}}
+<audio id="myCustomRinger" preload="auto" autoplay="false" loop="true"
+  src="/household_telephone_old_bell_ring_002.mp3">
+</audio>
+{{>ApiRtc otherUserId=this ringerElementSelector="#myCustomRinger"}}
 ```

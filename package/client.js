@@ -10,7 +10,10 @@ const states = {
   otherUserNumber: 'otherUserNumber',
   errorMessage: 'errorMessage',
   isReadyToEndCall: 'isReadyToEndCall',
-  isReadyToStartCall: 'isReadyToStartCall'
+  isReadyToStartCall: 'isReadyToStartCall',
+  isShowPosterLocal: 'isShowPosterLocal',
+  isShowPosterRemote: 'isShowPosterRemote',
+  isRinging: 'isRinging'
 }
 
 // messages
@@ -41,12 +44,7 @@ function translate(message, data) {
   return message + data?data:''
 }
 
-function addStreamToVideo(instance, stream, videoElementId) {
-  const element = instance.$(`#${videoElementId}`).get(0)
-  stream.attachToElement(mediaElt)
-}
-
-
+// not currently used
 // add media stream in div -
 // copied from https://dev.apirtc.com/demo/peertopeer_call/js/peertopeer-call.js
 function addStreamInDiv(stream, divId, mediaEltId, style, muted) {
@@ -146,13 +144,17 @@ function attachCallListeners(instance) {
   // on response
   instance.apiRtcCall.on(events.response, () => {
     console.log('other user responded')
+    
+    // stop ringing sound
+    instance.state.set(states.isRinging, false)
   })
 
   // on local stream available for call
   instance.apiRtcCall.on(events.localStreamAvailable, stream => {
     console.log('localStreamAvailable')
+    instance.state.set(states.isShowPosterLocal, false)
 
-    // add stream to DOM
+    // add stream to video element
     const localVideoElement = instance.$('.local-video').get(0)
     stream.attachToElement(localVideoElement)
 
@@ -165,6 +167,7 @@ function attachCallListeners(instance) {
   // on remote stream added
   instance.apiRtcCall.on(events.streamAdded, stream => {
     console.log('call stream added:', stream)
+    instance.state.set(states.isShowPosterRemote, false)
 
     // add stream to DOM
     const remoteVideoElement = instance.$('.remote-video').get(0)
@@ -172,12 +175,16 @@ function attachCallListeners(instance) {
 
     // on stream stop - e.g. screensharing call from another user
     stream.on('stopped', () => {
-      console.log('Remote stream stopped.')
+      console.log('Remote stream stopped.', remoteVideoElement)
+      instance.state.set(states.isShowPosterRemote, true)
     })
   })
 
   // on remote stream removed
   instance.apiRtcCall.on(events.streamRemoved, stream => {
+
+    // show the poster
+    instance.state.set(states.isShowPosterRemote, true)
 
     // enable the start call button
     instance.state.set(states.isReadyToStartCall, true)
@@ -238,6 +245,9 @@ function attachCallListeners(instance) {
     // disable the end call button
     instance.state.set(states.isReadyToEndCall, false)
 
+    // stop the ringer
+    instance.state.set(states.isRinging, false)
+
     // remove the invitation
     delete instance.apiRtcInvitation
 
@@ -245,7 +255,6 @@ function attachCallListeners(instance) {
     delete instance.apiRtcCall
   })
 }
-
 
 // on created
 Template.ApiRtc.onCreated(() => {
@@ -260,6 +269,9 @@ Template.ApiRtc.onCreated(() => {
 
   // disable end button
   instance.state.set(states.isReadyToEndCall, false)
+
+  // disable ringing
+  instance.state.set(states.isRinging, false)
 
   // get api rtc user agent
   instance.userAgent = new apiRTC.UserAgent({
@@ -307,6 +319,9 @@ Template.ApiRtc.onCreated(() => {
 
               // enable the end button
               instance.state.set(states.isReadyToEndCall, true)
+
+              // start ringing sound
+              instance.state.set(states.isRinging, true)
 
               // on invitation state change
               invitation.on(events.statusChange, event => {
@@ -382,6 +397,45 @@ Template.ApiRtc.onCreated(() => {
   worker(intervalId)
 })
 
+// on rendered
+Template.ApiRtc.onRendered(() => {
+  const instance= Template.instance()
+
+  // if a ringer element selector is specified
+  if (instance.data.ringerElementSelector) {
+
+    // react on isRinging
+    instance.autorun(() => {
+
+      // if phone is rigning
+      const isRinging = instance.state.get(states.isRinging)
+      console.log('call ringing:', isRinging)
+      console.log('ringer element selector:',
+          instance.data.ringerElementSelector)
+
+      const ringerElement = $(instance.data.ringerElementSelector).get(0)
+      console.log('ringer ringerElement:',
+          instance.data.ringerElement)
+
+      if (ringerElement) {
+        if (isRinging) {
+
+          // play audio
+          console.log('playing ringer audio')
+          ringerElement.play()
+        }
+        else {
+
+          // stop audio
+          console.log('stop ringer audio')
+          ringerElement.pause()
+          ringerElement.currentTime = 0
+        }
+      }
+    })
+  }
+})
+
 // helpers
 Template.ApiRtc.helpers({
   isReadyToStart() {
@@ -421,6 +475,9 @@ Template.ApiRtc.events({
     // if there is an invitation
     if (instance.apiRtcInvitation) {
       console.log('accepting invitation');
+
+      // stop ringing sound
+      instance.state.set(states.isRinging, false)
 
       // accept the call
       instance.apiRtcInvitation.accept()
@@ -462,6 +519,9 @@ Template.ApiRtc.events({
               const contact = instance.apiRtcSession.getOrCreateContact(number)
               instance.apiRtcCall = contact.call()
 
+              // start ringing sound
+              instance.state.set(states.isRinging, true)
+
               // attach call listeners
               attachCallListeners(instance)
             }
@@ -475,6 +535,9 @@ Template.ApiRtc.events({
   // on click of end call button
   'click .apirtc-end-call-button'(event, instance) {
     console.log(`End call button was clicked.`)
+
+    // stop ringing sound
+    instance.state.set(states.isRinging, false)
 
     if (instance.apiRtcCall) {
       console.log(`Hangup`)

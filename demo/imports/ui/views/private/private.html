@@ -1,11 +1,16 @@
 <template name="private">
+  <audio id="myCustomRinger" preload="auto" autoplay="false" loop="true"
+    src="/household_telephone_old_bell_ring_002.mp3">
+  </audio>
   <div class="container">
     <div class="row">
       <div class="col s12">
         {{#if currentUser}}
           <h1>Private</h1>
           {{#with otherUserId.get}}
-            {{>ApiRtc otherUserId=this}}
+            {{>ApiRtc
+                otherUserId=this
+                ringerElementSelector="#myCustomRinger"}}
           {{/with}}
           <p>Additional content.</p>
         {{else}}
