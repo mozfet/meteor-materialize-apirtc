@@ -51,6 +51,10 @@ html, body {
 @import "../node_modules/materialize-css/sass/materialize.scss";
 @import "{mozfet:materialize-apirtc}/style.scss";
 ```
+5. Set viewport in /client/head.html
+```
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+```
 
 # Usage
 In blaze template client side code:

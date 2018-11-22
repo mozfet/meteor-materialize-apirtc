@@ -2,6 +2,7 @@
 import { Template } from 'meteor/templating'
 import { ReactiveDict } from 'meteor/reactive-dict'
 import './external/apiRTC-4.1.24.min'
+import './screensize'
 import './client.html'
 
 // template states in the instance.states reactive directory
@@ -38,6 +39,18 @@ const events = {
   error: 'error',
   response: 'response'
 }
+
+console.log('Element.attachShadow:', Element.prototype.attachShadow)
+
+// hijack attachShadow to always use open mode, so we can style the shadowDom
+// NOT WORKING!
+const attachShadow = Element.prototype.attachShadow;
+Element.prototype.attachShadow = function () {
+  console.log('shadow dom is being hijacked')
+    return attachShadow({ mode: "open" })
+}
+
+console.log('Element.attachShadow:', Element.prototype.attachShadow)
 
 // abstracted placeholder for internationalization
 function translate(message, data) {
@@ -144,7 +157,7 @@ function attachCallListeners(instance) {
   // on response
   instance.apiRtcCall.on(events.response, () => {
     console.log('other user responded')
-    
+
     // stop ringing sound
     instance.state.set(states.isRinging, false)
   })
@@ -401,6 +414,9 @@ Template.ApiRtc.onCreated(() => {
 Template.ApiRtc.onRendered(() => {
   const instance= Template.instance()
 
+  const remoteVideoShadowRoot = instance.$('.remote-video').get(0).shadowDom
+  console.log('remote video shadow root', remoteVideoShadowRoot)
+
   // if a ringer element selector is specified
   if (instance.data.ringerElementSelector) {
 
@@ -444,9 +460,10 @@ Template.ApiRtc.helpers({
   },
   startIconAttr() {
     const instance = Template.instance()
+    const iconSize = Session.get('apiRtcScreenSize')==='SMALL'?'small':'medium'
     return {
       icon: 'call',
-      iconClass: 'medium green-text apirtc-start-call-button',
+      iconClass: `${iconSize} green-text apirtc-start-call-button`,
       text: 'Start or accept call.'
     }
   },
@@ -456,9 +473,10 @@ Template.ApiRtc.helpers({
   },
   endIconAttr() {
     const instance = Template.instance()
+    const iconSize = Session.get('apiRtcScreenSize')==='SMALL'?'small':'medium'
     return {
       icon: 'call_end',
-      iconClass: 'medium red-text apirtc-end-call-button',
+      iconClass: `${iconSize} red-text apirtc-end-call-button`,
       text: 'End or reject call.'
     }
   },
@@ -515,12 +533,18 @@ Template.ApiRtc.events({
               const number = instance.state.get(states.otherUserNumber)
               console.log('other user number is ', number)
 
-              // start a new call
-              const contact = instance.apiRtcSession.getOrCreateContact(number)
-              instance.apiRtcCall = contact.call()
+              // disable the start button
+              instance.state.set(states.isReadyToStartCall, false)
+
+              // enable the end button
+              instance.state.set(states.isReadyToEndCall, true)
 
               // start ringing sound
               instance.state.set(states.isRinging, true)
+
+              // start a new call
+              const contact = instance.apiRtcSession.getOrCreateContact(number)
+              instance.apiRtcCall = contact.call()
 
               // attach call listeners
               attachCallListeners(instance)

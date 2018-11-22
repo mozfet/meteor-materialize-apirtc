@@ -50,3 +50,9 @@
   position: absolute;
   margin-left: 2%;
 }
+
+/* Hide iOS Play Button */
+video::button {
+    display: none!important;
+    -webkit-appearance: none;
+}
