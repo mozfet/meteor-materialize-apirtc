@@ -1,7 +1,7 @@
 Package.describe({
   name: 'mozfet:materialize-apirtc',
   summary: 'MaterializeCSS styled WebRTC Implementation using ApiRTC for Meteor.',
-  version: '1.0.1',
+  version: '1.0.2',
   git: 'https://github.com/mozfet/meteor-materialize-apirtc.git'
 });
 
