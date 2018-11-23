@@ -29,10 +29,6 @@ Package.onUse(function(api) {
   api.addFiles(['style.scss'], 'client');
 });
 
-// Npm.depends({
-//   github: '0.2.4'
-// });
-
 Package.onTest(function(api) {
   api.versionsFrom('METEOR@1.6');
   api.use([

@@ -43,9 +43,9 @@ const events = {
 console.log('Element.attachShadow:', Element.prototype.attachShadow)
 
 // hijack attachShadow to always use open mode, so we can style the shadowDom
-// NOT WORKING!
+// NOT WORKING ON iOS.
 const attachShadow = Element.prototype.attachShadow;
-Element.prototype.attachShadow = function () {
+Element.prototype.attachShadow = () => {
   console.log('shadow dom is being hijacked')
     return attachShadow({ mode: "open" })
 }
