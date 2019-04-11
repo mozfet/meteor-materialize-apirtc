@@ -4,11 +4,11 @@
   "repository": "https://github.com/mozfet/meteor-materialize-apirtc",
   "version": "0.0.1",
   "scripts": {
-    "start": "meteor run",
+    "start": "meteor run --settings settings-development.json",
     "test": "meteor test --once --driver-package meteortesting:mocha",
-    "deploy": "DEPLOY_HOSTNAME=galaxy.meteor.com meteor deploy materialize-apirtc-demo.meteorapp.com --settings settings-production.json",
+    "deploy": "DEPLOY_HOSTNAME=galaxy.meteor.com meteor deploy materialize-apirtc-demo.meteorapp.com --settings secure/settings-production.json",
     "secure": "meteor node imports/scripts/secure.js ~/projects/meteor-materialize-apirtc/demo/config.json",
-    "unsecure": "meteor node imports/scripts/unsecure.js config.json"
+    "unsecure": "meteor node imports/scripts/unsecure.js ~/projects/meteor-materialize-apirtc/demo/config.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.1.5",

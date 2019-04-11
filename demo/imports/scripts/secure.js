@@ -23,7 +23,7 @@ const dir_projects = config.userFolder + '/' + config.projectsFolder
 // derive directories
 var dir_project = dir_projects + '/' + project_name
 console.log(chalk.yellow('dir_project: ' + dir_project))
-var dir_secure = dir_project + '/secure'
+var dir_secure = 'secure'
 console.log(chalk.yellow('dir_secure: ' + dir_secure))
 
 // derive files

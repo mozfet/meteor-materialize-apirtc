@@ -1,5 +1,5 @@
 # meteor-materialize-apirtc
-MaterializeCSS styled WebRTC Implementation using ApiRTC for Meteor.
+Meteor MaterializeCSS styled WebRTC Implementation using [ApiRTC](https://apirtc.com/).
 
 # Installation
 
@@ -17,10 +17,11 @@ $ meteor npm install --save bcrypt
 $ meteor add accounts-base
 $ meteor add accounts-password
 $ meteor add accounts-ui
+$ meteor add fourseven:scss
 $ meteor add useraccounts:flow-routing
 $ meteor add useraccounts:materialize
 $ meteor add zodiase:material-design-icons-fonts
-$ meteor add fourseven:scss
+
 $ meteor add mozfet:materialize-apirtc
 ```
 
@@ -57,10 +58,22 @@ html, body {
 ```
 
 # Usage
+
+In Meteor Settings file:
+```
+{
+  "public": {
+    "ApiRTC": {
+      "key": "YOUR_API_RTC_KEY"
+    }
+  }
+}
+```
+
 In blaze template client side code:
 ```
 <audio id="myCustomRinger" preload="auto" autoplay="false" loop="true"
   src="/household_telephone_old_bell_ring_002.mp3">
 </audio>
-{{>ApiRtc otherUserId=this ringerElementSelector="#myCustomRinger"}}
+{{>ApiRtc otherUserId="12345678" ringerElementSelector="#myCustomRinger"}}
 ```

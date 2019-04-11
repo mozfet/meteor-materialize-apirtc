@@ -2,11 +2,26 @@
   <div class="container">
     <div class="row">
       <div class="col s12">
+
         <h1>Home</h1>
+
+        <p>This demo shows how <a href="https://github.com/mozfet/meteor-materialize-apirtc">mozfet:meteor-materialize-apirtc</a> makes it easy to establish real time video chat between two <a href="https://docs.meteor.com/api/accounts.html">Meteor Accounts</a> users using <a href="https://apirtc.com/">ApiRTC</a>'s WebRTC PaaS and our minimalistic <a href="https://materializecss.com/">MaterializeCSS</a> styled, HTML5 Video player with floating icon buttons, mini video and custom ringtones.</p>
+
+        <p>There are however parts of implementing realtime video chat that is not demonstrated here: the co-ordination  users to be online at the same time to establish the call, and to know which user wants to speak to which other user. Thus matching and meeting scheduling are still bigger parts of the overall solution for which each project will have their own strategy.</p>
+        <h2>How to use this demo</h2>
+
         <ol>
-          <li>Open two different browsers e.g. Chrome and Safari.</li>
-          <li>Login as peter@test.com with password 1234 on one browser.</li>
-          <li>Login as susan@test.com with password 1234 on the other browser.</li>
+          <li>Open two different browsers on the same device and point to this address or use defferent devices and any browsers.</li>
+          <li>In view1: Press the Video Chat Button below. Sign in as peter@test.com with password 1234.</li>
+          <li>In view2: Press the Video Chat Button below. Sign in as susan@test.com with password 1234.</li>
+          <li>You will be redirected to a users only page containing a container for the video of the other party and the mini-video (yourself) and floating icon control buttons in the top left.</li>
+          <li>Press the green start/answer phone button in either view.</li>
+          <li>You may be asked for permissions to use the microphone and camara depending on your browser security settings. This may happen on both views.</li>
+          <li>The call is now started and will cause the ringtone to play in the other view.</li>
+          <li>Press the green button on the ringing view to answer the call.</li>
+          <li>Once the call is answered, the green start/answer button dissapears and a red decline/stop phone button appears in both views.</li>
+          <li>You are now video calling yourself and should be seeing 4 streaming videos of yourself in two browsers on one or two devices. Video and audio from your one or two cameras are streamed from one or two browsers on one or to devices to each other over the internet, via the ApiRTC WebRTC PaaS.</li>
+          <li>Press the red button at any time to stop the call.</li>
         </ol>
         <a href="{{pathFor 'private'}}" class="btn">Video Chat</a>
       </div>

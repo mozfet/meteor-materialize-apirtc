@@ -288,7 +288,7 @@ Template.ApiRtc.onCreated(() => {
 
   // get api rtc user agent
   instance.userAgent = new apiRTC.UserAgent({
-    uri: 'apzkey: 6d5d9e0862e0b118590b248fca093740'
+    uri: `apzkey: ${Meteor.settings.public.ApiRTC.key}`
   })
 
   // get the user id
