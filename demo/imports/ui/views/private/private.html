@@ -8,9 +8,7 @@
         {{#if currentUser}}
           <h1>Private</h1>
           {{#with otherUserId.get}}
-            {{>ApiRtc
-                otherUserId=this
-                ringerElementSelector="#myCustomRinger"}}
+            {{>ApiRtc otherUserId=this ringerElementSelector="#myCustomRinger"}}
           {{/with}}
           <p>Additional content.</p>
         {{else}}

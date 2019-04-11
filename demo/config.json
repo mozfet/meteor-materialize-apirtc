@@ -1,0 +1,13 @@
+{
+  "humanName": "Meteor Materialize ApiRTC Demo",
+  "humanDescription": "Demonstration of real time video chat using ApiRTC.",
+  "shortName": "MMAPIRTC",
+  "userFolder": "/Users/wynandvermeulen",
+  "projectsFolder": "projects",
+  "projectName": "meteor-materialize-apirtc/demo",
+  "version": "0.0.1",
+  "author": "The Expert Box B.V.",
+  "email": "info@expertbox.com",
+  "licence": "See LICENCE.md",
+  "website": "https://expertbox.com"
+}

@@ -2,17 +2,23 @@
   "name": "Materialize-ApiRTC-Demo-App",
   "description": "Materialize ApiRTC Demo App",
   "repository": "https://github.com/mozfet/meteor-materialize-apirtc",
+  "version": "0.0.1",
   "scripts": {
     "start": "meteor run",
-    "test": "meteor test --once --driver-package meteortesting:mocha"
+    "test": "meteor test --once --driver-package meteortesting:mocha",
+    "deploy": "DEPLOY_HOSTNAME=galaxy.meteor.com meteor deploy materialize-apirtc-demo.meteorapp.com --settings settings-production.json",
+    "secure": "meteor node imports/scripts/secure.js ~/projects/meteor-materialize-apirtc/demo/config.json",
+    "unsecure": "meteor node imports/scripts/unsecure.js config.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.1.5",
-    "bcrypt": "^3.0.0",
+    "bcrypt": "^3.0.2",
     "materialize-css": "^1.0.0",
     "meteor-node-stubs": "^0.4.1"
   },
   "devDependencies": {
-    "chai": "^4.1.2"
+    "chai": "^4.2.0",
+    "chalk": "^2.4.1",
+    "shelljs": "^0.7.8"
   }
 }
