@@ -14,11 +14,11 @@ Package.onUse(function(api) {
     'underscore'
   ]);
   api.use([
-    'templating',
+    'templating@1.3.2',
+    'blaze@2.3.3',
     'session',
-    'blaze',
     'reactive-dict',
-    'mozfet:materialize-icons@1.1.1',
+    'mozfet:materialize-icons@1.1.4',
     'fourseven:scss@4.5.4'
   ], 'client');
   api.use([
@@ -32,10 +32,11 @@ Package.onUse(function(api) {
 Package.onTest(function(api) {
   api.versionsFrom('METEOR@1.6');
   api.use([
-    'templating',
-    'blaze',
+    'templating@1.3.2',
+    'blaze@2.3.3',
+    'session',
     'reactive-dict',
-    'mozfet:materialize-icons@0.1.1',
+    'mozfet:materialize-icons@1.1.4',
     'fourseven:scss@4.5.4'
   ], 'client');
   api.use([
